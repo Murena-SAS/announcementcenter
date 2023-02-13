@@ -43,7 +43,7 @@ use OCP\Mail\IMessage;
 use OCP\Notification\IManager as INotificationManager;
 use OCP\Notification\INotification;
 use Psr\Log\LoggerInterface;
-
+use OCP\IURLGenerator;
 class BackgroundJob extends QueuedJob {
 	/** @var IConfig */
 	protected $config;
@@ -75,6 +75,7 @@ class BackgroundJob extends QueuedJob {
 	/** @var bool */
 	protected $enabledForGuestsUsers;
 
+	protected $url;
 	public function __construct(
 		IConfig $config,
 		ITimeFactory $time,
@@ -84,7 +85,8 @@ class BackgroundJob extends QueuedJob {
 		INotificationManager $notificationManager,
 		IMailer $mailer,
 		LoggerInterface $logger,
-		Manager $manager) {
+		Manager $manager,
+		IURLGenerator $urlGenerator) {
 		parent::__construct($time);
 		$this->config = $config;
 		$this->userManager = $userManager;
@@ -94,6 +96,7 @@ class BackgroundJob extends QueuedJob {
 		$this->mailer = $mailer;
 		$this->logger = $logger;
 		$this->manager = $manager;
+		$this->url = $urlGenerator;
 	}
 
 	/**
@@ -136,7 +139,9 @@ class BackgroundJob extends QueuedJob {
 			->setDateTime($dateTime)
 			->setObject('announcement', (string)$announcement->getId())
 			->setSubject('announced', [$announcement->getUser()]);
-
+			
+		$notification->setIcon($this->url->getAbsoluteURL($this->url->imagePath('announcementcenter', $announcement->getnotificationType().'.svg')));
+		
 		$template = $this->mailer->createEMailTemplate('announcementcenter::sendMail');
 		$template->setSubject($announcement->getSubject());
 		$template->addHeader();
