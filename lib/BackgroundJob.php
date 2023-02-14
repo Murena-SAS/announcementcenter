@@ -139,7 +139,7 @@ class BackgroundJob extends QueuedJob {
 			->setDateTime($dateTime)
 			->setObject('announcement', (string)$announcement->getId())
 			->setSubject('announced', [$announcement->getUser()]);
-			
+		//new icon
 		$notification->setIcon($this->url->getAbsoluteURL($this->url->imagePath('announcementcenter', $announcement->getnotificationType().'.svg')));
 		
 		$template = $this->mailer->createEMailTemplate('announcementcenter::sendMail');
